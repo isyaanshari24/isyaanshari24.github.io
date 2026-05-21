@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<title>PT. Sumber Hayati Mandiri</title>
+<link rel="manifest" href="manifest.json"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="PT. SHM"/>
+<meta name="theme-color" content="#2563eb"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --blue-900: #0f172a;
+  --blue-800: #1e3a5f;
+  --blue-700: #1d4ed8;
+  --blue-600: #2563eb;
+  --blue-500: #3b82f6;
+  --blue-100: #dbeafe;
+  --blue-50:  #eff6ff;
+  --orange:   #ea580c;
+  --green:    #16a34a;
+  --red:      #dc2626;
+  --gray-900: #111827;
+  --gray-700: #374151;
+  --gray-500: #6b7280;
+  --gray-300: #d1d5db;
+  --gray-200: #e5e7eb;
+  --gray-100: #f3f4f6;
+  --gray-50:  #f9fafb;
+  --white:    #ffffff;
+  --radius-sm: 8px;
+  --radius:    12px;
+  --radius-lg: 18px;
+  --shadow-sm: 0 1px 4px rgba(0,0,0,0.07);
+  --shadow:    0 4px 16px rgba(0,0,0,0.10);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.13);
+  --nav-h: 64px;
+  --font: 'Plus Jakarta Sans', sans-serif;
+  --mono: 'DM Mono', monospace;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+html, body {
+  height: 100%;
+  font-family: var(--font);
+  background: var(--gray-50);
+  color: var(--gray-900);
+  overflow-x: hidden;
+}
+
+/* ── SPLASH ── */
+#splash {
+  position: fixed; inset: 0; z-index: 999;
+  background: linear-gradient(160deg, #0f172a 0%, #1e3a5f 60%, #1d4ed8 100%);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 20px;
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+#splash.hide { opacity:0; transform:scale(1.05); pointer-events:none; }
+.splash-logo {
+  width: 110px; height: 110px;
+  background: white;
+  border-radius: 28px;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.3);
+  overflow: hidden;
+  animation: logoIn 0.7s cubic-bezier(.34,1.56,.64,1) both;
+}
+@keyframes logoIn {
+  from { opacity:0; transform:scale(0.6) translateY(20px); }
+  to   { opacity:1; transform:scale(1) translateY(0); }
+}
+.splash-logo img { width:90%; height:90%; object-fit:contain; }
+.splash-name {
+  color: white;
+  font-size: 18px; font-weight: 800;
+  text-align: center; letter-spacing: -0.3px;
+  animation: fadeUp 0.6s 0.3s both;
+}
+.splash-sub {
+  color: rgba(255,255,255,0.55);
+  font-size: 12px; font-weight: 500;
+  text-align: center; letter-spacing: 0.5px;
+  text-transform: uppercase;
+  animation: fadeUp 0.6s 0.45s both;
+}
+.splash-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: rgba(255,255,255,0.3);
+  animation: pulse 1.2s 0.7s infinite;
+}
+@keyframes pulse { 0%,100%{opacity:.3;transform:scale(1)} 50%{opacity:1;transform:scale(1.4)} }
+@keyframes fadeUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+
+/* ── APP SHELL ── */
+#app { display:none; flex-direction:column; height:100vh; }
+#app.visible { display:flex; }
+
+/* ── PAGES ── */
+.pages { flex:1; overflow:hidden; position:relative; }
+.page {
+  position: absolute; inset: 0;
+  overflow-y: auto; overflow-x: hidden;
+  opacity: 0; transform: translateY(12px);
+  pointer-events: none;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  padding-bottom: calc(var(--nav-h) + 16px);
+}
+.page.active {
+  opacity:1; transform:translateY(0);
+  pointer-events: auto;
+}
+
+/* ── BOTTOM NAV ── */
+.bottom-nav {
+  height: var(--nav-h);
+  background: var(--white);
+  border-top: 1px solid var(--gray-200);
+  display: flex;
+  box-shadow: 0 -4px 20px rgba(0,0,0,0.06);
+  position: relative; z-index: 10;
+  flex-shrink: 0;
+}
+.nav-item {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 4px; cursor: pointer;
+  border: none; background: none;
+  padding: 8px 4px;
+  transition: color 0.2s;
+  color: var(--gray-400, #9ca3af);
+  position: relative;
+}
+.nav-item .nav-icon { font-size: 20px; transition: transform 0.2s; }
+.nav-item .nav-label { font-size: 10px; font-weight: 600; letter-spacing: 0.2px; line-height:1; }
+.nav-item.active { color: var(--blue-600); }
+.nav-item.active .nav-icon { transform: translateY(-2px); }
+.nav-item::before {
+  content:''; position:absolute; top:0; left:50%; transform:translateX(-50%);
+  width:0; height:2px; border-radius:0 0 2px 2px;
+  background: var(--blue-600);
+  transition: width 0.2s;
+}
+.nav-item.active::before { width: 28px; }
+
+/* ── SHARED COMPONENTS ── */
+.page-header {
+  background: linear-gradient(135deg, var(--blue-900) 0%, var(--blue-800) 100%);
+  padding: 20px 20px 24px;
+  color: white;
+}
+.page-header h2 { font-size: 20px; font-weight: 800; letter-spacing: -0.3px; }
+.page-header p  { font-size: 13px; color: rgba(255,255,255,0.6); margin-top:3px; }
+
+.card {
+  background: white;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--gray-200);
+  overflow: hidden;
+}
+.card-body { padding: 16px; }
+.card-title {
+  font-size: 11px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.8px;
+  color: var(--gray-500); margin-bottom: 12px;
+}
+
+.section { padding: 16px; }
+.section + .section { padding-top: 0; }
+
+label.field-label {
+  display:block; margin-bottom:6px;
+  font-size: 12px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.5px;
+  color: var(--gray-500);
+}
+input[type="text"], input[type="date"], select, textarea {
+  width: 100%;
+  padding: 11px 14px;
+  border: 1.5px solid var(--gray-200);
+  border-radius: var(--radius);
+  font-size: 14px; font-family: var(--font);
+  color: var(--gray-900); background: white;
+  outline: none; transition: border-color 0.15s, box-shadow 0.15s;
+  -webkit-appearance: none;
+}
+input:focus, select:focus, textarea:focus {
+  border-color: var(--blue-500);
+  box-shadow: 0 0 0 3px rgba(59,130,246,0.12);
+}
+input[readonly] { background: var(--gray-50); color: var(--gray-500); }
+
+.btn {
+  display: block; width: 100%;
+  padding: 13px; border: none; border-radius: var(--radius);
+  font-size: 14px; font-weight: 700; font-family: var(--font);
+  cursor: pointer; text-align: center; transition: opacity 0.2s, transform 0.1s;
+  letter-spacing: 0.2px;
+}
+.btn:active { transform: scale(0.98); }
+.btn-primary  { background: var(--blue-600); color: white; }
+.btn-orange   { background: var(--orange); color: white; }
+.btn-green    { background: var(--green); color: white; }
+.btn-ghost    { background: white; color: var(--gray-700); border: 1.5px solid var(--gray-200); }
+.btn-danger   { background: #fef2f2; color: var(--red); border: 1.5px solid #fecaca; }
+.btn:hover    { opacity: 0.88; }
+
+.form-group { margin-bottom: 14px; }
+.divider { border:none; border-top:1px solid var(--gray-100); margin: 14px 0; }
+
+.tag-row { display:flex; flex-wrap:wrap; gap:8px; margin-top:6px; }
+.tag {
+  padding: 6px 12px; border-radius: 20px;
+  font-size: 13px; font-weight: 600;
+  border: 1.5px solid var(--gray-200);
+  background: white; color: var(--gray-600,#4b5563);
+  cursor: pointer; transition: all 0.15s;
+}
+.tag.selected { background: var(--blue-600); color:white; border-color: var(--blue-600); }
+.tag.orange.selected { background: var(--orange); border-color: var(--orange); }
+
+.pill-toggle {
+  display:flex; border: 1.5px solid var(--gray-200);
+  border-radius: var(--radius); overflow:hidden;
+}
+.pill-toggle button {
+  flex:1; padding:10px; border:none;
+  background:transparent; font-size:13px; font-weight:600;
+  font-family:var(--font); color:var(--gray-500); cursor:pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.pill-toggle button.active { background:var(--blue-600); color:white; }
+
+/* ── BERANDA ── */
+.home-hero {
+  background: linear-gradient(150deg, #0f172a 0%, #1e3a5f 50%, #1d4ed8 100%);
+  padding: 28px 20px 36px;
+  position: relative; overflow: hidden;
+}
+.home-hero::after {
+  content:''; position:absolute;
+  width:200px; height:200px; border-radius:50%;
+  background: rgba(255,255,255,0.04);
+  right:-40px; top:-60px;
+}
+.home-hero-logo {
+  width:60px; height:60px; background:white;
+  border-radius:16px; overflow:hidden;
+  display:flex; align-items:center; justify-content:center;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+  margin-bottom: 14px;
+}
+.home-hero-logo img { width:90%; height:90%; object-fit:contain; }
+.home-hero h1 { color:white; font-size:22px; font-weight:800; letter-spacing:-0.5px; line-height:1.2; }
+.home-hero p  { color:rgba(255,255,255,0.55); font-size:12px; margin-top:4px; letter-spacing:0.3px; text-transform:uppercase; }
+
+.home-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; padding:16px; }
+.home-card {
+  background:white; border-radius:var(--radius-lg);
+  border: 1px solid var(--gray-200);
+  padding:16px; display:flex; flex-direction:column; gap:10px;
+  cursor:pointer; transition: transform 0.15s, box-shadow 0.15s;
+  box-shadow: var(--shadow-sm);
+}
+.home-card:active { transform:scale(0.97); box-shadow: var(--shadow); }
+.home-card-icon {
+  width:44px; height:44px; border-radius:12px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:22px;
+}
+.home-card h3 { font-size:13px; font-weight:700; color:var(--gray-900); line-height:1.3; }
+.home-card p  { font-size:11px; color:var(--gray-500); line-height:1.4; }
+.ic-blue   { background: var(--blue-50); }
+.ic-orange { background: #fff7ed; }
+.ic-teal   { background: #f0fdfa; }
+.ic-purple { background: #faf5ff; }
+
+.home-info {
+  margin: 0 16px 16px;
+  background: var(--blue-50);
+  border: 1px solid var(--blue-100);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+  display: flex; align-items:center; gap:10px;
+}
+.home-info span { font-size:13px; color: var(--blue-700); line-height:1.4; }
+
+/* ── SERI TABUNG ── */
+.seri-list-box {
+  background: var(--gray-50);
+  border: 1.5px solid var(--gray-200);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  min-height: 52px; max-height: 160px;
+  overflow-y: auto;
+}
+.seri-item {
+  display:flex; justify-content:space-between; align-items:center;
+  padding: 4px 0; font-family: var(--mono); font-size:13px; color:var(--gray-700);
+  border-bottom:1px solid var(--gray-100);
+}
+.seri-item:last-child { border-bottom:none; }
+.seri-del { background:none; border:none; color:#f87171; cursor:pointer; font-size:15px; padding:0 4px; }
+.empty-hint { color:var(--gray-300); font-size:13px; font-style:italic; }
+
+.result-box {
+  margin: 0 16px 16px;
+  background: var(--blue-50);
+  border: 1.5px solid var(--blue-100);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  display: none;
+}
+.result-box .result-label { font-size:11px; font-weight:700; color:var(--blue-700); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px; }
+.result-box pre { white-space:pre-wrap; font-size:13px; font-family:var(--mono); color:#1e293b; line-height:1.7; }
+
+/* ── REQUEST HE ── */
+.wa-preview {
+  background: #e9f5e1;
+  border: 1.5px solid #bbf7d0;
+  border-radius: var(--radius-lg);
+  padding: 16px; margin: 0 16px 16px;
+  display: none;
+}
+.wa-preview .wa-label { font-size:11px; font-weight:700; color:#15803d; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px; }
+.wa-preview pre { white-space:pre-wrap; font-size:13px; font-family:var(--mono); color:#14532d; line-height:1.7; }
+
+/* ── ABSENSI iframe ── */
+/* absensi-frame removed */
+
+/* ── LOADING BADGE ── */
+.badge {
+  display:inline-block; padding:3px 9px; border-radius:20px;
+  font-size:11px; font-weight:700;
+}
+.badge-online { background:#dcfce7; color:#15803d; }
+.badge-offline{ background:#fee2e2; color:#b91c1c; }
+
+/* ── MISC ── */
+.add-row { display:flex; gap:8px; align-items:center; }
+.add-row input { flex:1; }
+.add-row button { flex-shrink:0; padding:11px 14px; border:none; border-radius:var(--radius); background:var(--blue-600); color:white; font-size:13px; font-weight:700; font-family:var(--font); cursor:pointer; }
+
+.waktu-row { display:flex; gap:8px; margin-top:6px; }
+.waktu-btn {
+  flex:1; padding:9px 4px; border:1.5px solid var(--gray-200);
+  border-radius:var(--radius-sm); background:white;
+  font-size:12px; font-weight:600; font-family:var(--font);
+  color:var(--gray-500); cursor:pointer; text-align:center;
+  transition: all 0.15s;
+}
+.waktu-btn.active { background:var(--blue-600); color:white; border-color:var(--blue-600); }
+
+.prefix-row { display:flex; gap:8px; align-items:stretch; }
+.prefix-row select { width:46%; }
+.prefix-row input  { flex:1; }
+
+.item-chip {
+  display:inline-flex; align-items:center; gap:6px;
+  padding:6px 10px; border-radius:20px;
+  background:var(--blue-50); border:1px solid var(--blue-100);
+  font-size:13px; font-weight:600; color:var(--blue-700);
+  margin: 3px;
+}
+.item-chip button { background:none; border:none; cursor:pointer; color:#f87171; font-size:13px; line-height:1; }
+
+.blok-card {
+  background: var(--gray-50); border:1.5px solid var(--gray-200);
+  border-radius: var(--radius); padding:12px; margin-bottom:10px;
+  position:relative;
+}
+.blok-card .blok-del { position:absolute; top:10px; right:10px; background:none; border:none; cursor:pointer; color:#f87171; font-size:15px; }
+
+@media (max-width:360px) {
+  .home-grid { grid-template-columns:1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- SPLASH -->
+<div id="splash">
+  <div class="splash-logo">
+    <img src="https://isyaanshari24.github.io/PT.SHM/logo.webp" alt="Logo PT. SHM"
+         onerror="this.parentElement.innerHTML='<span style=\'font-size:36px\'>⚓</span>'"/>
+  </div>
+  <div class="splash-name">PT. Sumber Hayati Mandiri</div>
+  <div class="splash-sub">General Contractor &amp; Marine Service</div>
+  <div class="splash-dot"></div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <div class="pages">
+
+    <!-- ══ BERANDA ══ -->
+    <div class="page active" id="page-home">
+      <div class="home-hero">
+        <div class="home-hero-logo">
+          <img src="https://isyaanshari24.github.io/PT.SHM/logo.webp" alt="Logo"
+               onerror="this.parentElement.innerHTML='⚓'"/>
+        </div>
+        <h1>PT. Sumber Hayati<br/>Mandiri</h1>
+        <p>General Contractor &amp; Marine Service</p>
+      </div>
+
+      <div class="home-grid">
+        <div class="home-card" onclick="goTo('he')">
+          <div class="home-card-icon ic-orange">🏗️</div>
+          <h3>Request Alat Berat</h3>
+          <p>Buat request &amp; kirim ke WA</p>
+        </div>
+        <div class="home-card" onclick="goTo('seri')">
+          <div class="home-card-icon ic-teal">🧪</div>
+          <h3>Seri Tabung</h3>
+          <p>Input seri Oxygen &amp; LPG</p>
+        </div>
+        <div class="home-card" onclick="goTo('absensi')" style="grid-column:1/-1;">
+          <div style="display:flex;align-items:center;gap:12px;">
+            <div class="home-card-icon ic-blue">📊</div>
+            <div>
+              <h3>Absensi Manpower</h3>
+              <p>Kelola absensi &amp; crew kapal — terhubung Google Sheets</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="home-info">
+        <span>💡</span>
+        <span>Pilih menu di atas atau gunakan navigasi bawah untuk berpindah fitur.</span>
+      </div>
+    </div>
+
+    <!-- ══ REQUEST ALAT BERAT ══ -->
+    <div class="page" id="page-he">
+      <div class="page-header">
+        <h2>🏗️ Request Alat Berat</h2>
+        <p>PT. Sumber Hayati Mandiri</p>
+      </div>
+
+      <div class="section">
+        <div class="form-group">
+          <label class="field-label">Tanggal</label>
+          <input type="date" id="he-tgl"/>
+        </div>
+        <div class="form-group">
+          <label class="field-label">Subkontraktor</label>
+          <input type="text" id="he-subkon" placeholder="Nama subkontraktor"/>
+        </div>
+
+        <div class="form-group">
+          <label class="field-label">Project</label>
+          <div class="tag-row" id="he-project-tags">
+            <span class="tag" onclick="heToggleTag(this,'project')">BATOK</span>
+            <span class="tag" onclick="heToggleTag(this,'project')">PPSDM</span>
+            <span class="tag" onclick="heToggleTag(this,'project')">BSB</span>
+            <span class="tag" onclick="heToggleTag(this,'project')">BONTANG</span>
+          </div>
+          <div class="add-row" style="margin-top:8px;">
+            <input type="text" id="he-project-input" placeholder="Project lain..."/>
+            <button onclick="heAddTag('project')">+ Tambah</button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="field-label">Waktu</label>
+          <div class="waktu-row">
+            <button class="waktu-btn" onclick="heToggleWaktu(this,'PAGI')">🌅 PAGI</button>
+            <button class="waktu-btn" onclick="heToggleWaktu(this,'SIANG')">☀️ SIANG</button>
+            <button class="waktu-btn" onclick="heToggleWaktu(this,'MALAM')">🌙 MALAM</button>
+          </div>
+          <input type="text" id="he-jam" placeholder="Jam opsional (mis: 08.00)" style="margin-top:8px;"/>
+        </div>
+
+        <div class="form-group">
+          <label class="field-label">Alat Berat</label>
+          <div class="tag-row" id="he-alat-tags">
+            <span class="tag" onclick="heToggleTag(this,'alat')">Crane</span>
+            <span class="tag" onclick="heToggleTag(this,'alat')">Excavator</span>
+            <span class="tag" onclick="heToggleTag(this,'alat')">Forklift</span>
+            <span class="tag" onclick="heToggleTag(this,'alat')">Truck</span>
+            <span class="tag" onclick="heToggleTag(this,'alat')">Trailer</span>
+          </div>
+          <div class="add-row" style="margin-top:8px;">
+            <input type="text" id="he-alat-input" placeholder="Alat lain..."/>
+            <button onclick="heAddTag('alat')">+ Tambah</button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="field-label">Rekomendasi Unit <span style="font-weight:400;color:var(--gray-400,#9ca3af);text-transform:none">(opsional)</span></label>
+          <input type="text" id="he-rekomendasi" placeholder="Mis: Unit 03"/>
+        </div>
+
+        <hr class="divider"/>
+
+        <div class="form-group">
+          <label class="field-label">Pekerjaan <span style="font-weight:400;color:var(--gray-400);text-transform:none">(project + alat per blok)</span></label>
+          <div id="he-blok-container"></div>
+          <button class="btn btn-ghost" onclick="heAddBlok()" style="margin-top:4px;font-size:13px;padding:10px;">+ Tambah Blok Pekerjaan</button>
+        </div>
+
+        <button class="btn btn-orange" onclick="heGenerate()" style="margin-bottom:10px;">📲 Generate Preview WA</button>
+        <button class="btn btn-ghost" onclick="heReset()">🗑 Reset Form</button>
+      </div>
+
+      <div class="wa-preview" id="he-result">
+        <div class="wa-label">Preview WhatsApp</div>
+        <pre id="he-output"></pre>
+        <button class="btn btn-green" onclick="heCopy()" style="margin-top:10px;">📋 Salin</button>
+        <button class="btn btn-ghost" onclick="heSendWA()" style="margin-top:8px;">📱 Kirim ke WA</button>
+      </div>
+    </div>
+
+    <!-- ══ SERI TABUNG ══ -->
+    <div class="page" id="page-seri">
+      <div class="page-header">
+        <h2>🧪 Seri Tabung</h2>
+        <p>Input No. Seri Oxygen &amp; LPG</p>
+      </div>
+
+      <div class="section">
+        <div class="form-group">
+          <label class="field-label">Subcontractor</label>
+          <input type="text" id="s-subcon" value="PT. SHM" readonly/>
+        </div>
+        <div class="form-group">
+          <label class="field-label">Project</label>
+          <input type="text" id="s-project" placeholder="Contoh: BATOK"/>
+        </div>
+        <div class="form-group">
+          <label class="field-label">Tanggal Request</label>
+          <input type="text" id="s-req" placeholder="JUMAT, 15 Mei 2026"/>
+        </div>
+        <div class="form-group">
+          <label class="field-label">Tanggal Pengambilan</label>
+          <input type="text" id="s-pickup" placeholder="RABU, 20 Mei 2026"/>
+        </div>
+        <hr class="divider"/>
+        <div class="form-group">
+          <label class="field-label">Jenis Tabung</label>
+          <div class="pill-toggle">
+            <button id="s-btn-oxy" class="active" onclick="sSetJenis('Oxygen')">🔵 Oxygen</button>
+            <button id="s-btn-lpg" onclick="sSetJenis('LPG')">🟠 LPG</button>
+          </div>
+        </div>
+        <div class="form-group" id="s-prefix-wrap">
+          <label class="field-label">Awalan Seri</label>
+          <div class="prefix-row">
+            <select id="s-prefix" onchange="sPrefixChange()">
+              <option value="1081">1081</option>
+              <option value="941">941</option>
+              <option value="custom">Isi Sendiri...</option>
+            </select>
+            <input type="text" id="s-custom-prefix" placeholder="Ketik awalan, Enter"
+                   style="display:none;" onkeydown="if(event.key==='Enter'){document.getElementById('s-seri').focus();}"/>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="field-label">No. Seri</label>
+          <input type="text" id="s-seri" placeholder="Ketik nomor seri, tekan Enter"
+                 onkeydown="if(event.key==='Enter'){sAddSeri();}"/>
+        </div>
+        <div class="form-group">
+          <label class="field-label">Daftar Seri</label>
+          <div class="seri-list-box" id="s-preview"><span class="empty-hint">Belum ada seri</span></div>
+          <div style="font-size:12px;color:var(--gray-400,#9ca3af);text-align:right;margin-top:4px;" id="s-count"></div>
+        </div>
+        <button class="btn btn-orange" onclick="sGenerate()" style="margin-bottom:10px;">⚡ Generate Output</button>
+        <button class="btn btn-ghost" onclick="sClearAll()">🗑 Bersihkan Semua</button>
+      </div>
+
+      <div class="result-box" id="s-result">
+        <div class="result-label">Output Siap Kirim</div>
+        <pre id="s-output"></pre>
+        <button class="btn btn-green" onclick="sCopy()" style="margin-top:12px;">📋 Copy Output</button>
+      </div>
+    </div>
+
+    <!-- ══ ABSENSI ══ -->
+    <div class="page" id="page-absensi">
+      <div class="page-header">
+        <h2>📊 Absensi Manpower</h2>
+        <p>PT. Sumber Hayati Mandiri · Online</p>
+      </div>
+      <div style="padding:20px;">
+        <div style="background:white;border-radius:18px;border:1px solid var(--gray-200);padding:24px;text-align:center;box-shadow:var(--shadow-sm);">
+          <div style="width:64px;height:64px;background:var(--blue-50);border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:32px;margin:0 auto 16px;">📊</div>
+          <h3 style="font-size:17px;font-weight:800;color:var(--gray-900);margin-bottom:8px;">Sistem Absensi Manpower</h3>
+          <p style="font-size:13px;color:var(--gray-500);line-height:1.6;margin-bottom:20px;">Kelola absensi, crew kapal, dan laporan WhatsApp. Data tersimpan di Google Sheets secara real-time.</p>
+          <button class="btn btn-primary" onclick="window.open('https://isyaanshari24.github.io/PT.SHM/','_blank')" style="margin-bottom:10px;">
+            🔗 Buka Absensi
+          </button>
+          <p style="font-size:11px;color:var(--gray-400,#9ca3af);margin-top:8px;">Akan terbuka di browser · Memerlukan koneksi internet</p>
+        </div>
+
+        <div style="margin-top:16px;background:var(--blue-50);border:1px solid var(--blue-100);border-radius:14px;padding:14px 16px;">
+          <p style="font-size:12px;font-weight:700;color:var(--blue-700);margin-bottom:6px;">ℹ️ Info Akses</p>
+          <p style="font-size:12px;color:var(--blue-700);line-height:1.6;">Absensi berjalan <b>online</b> dan terhubung ke Google Sheets. Pastikan internet aktif saat menggunakan fitur ini.</p>
+        </div>
+
+        <div style="margin-top:12px;background:#fff7ed;border:1px solid #fed7aa;border-radius:14px;padding:14px 16px;">
+          <p style="font-size:12px;font-weight:700;color:#c2410c;margin-bottom:6px;">⏰ Jam Akses Viewer</p>
+          <p style="font-size:12px;color:#c2410c;line-height:1.6;">Mode viewer dibuka sesuai jadwal yang diset Admin. Admin bisa akses kapan saja.</p>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /pages -->
+
+  <!-- BOTTOM NAV -->
+  <nav class="bottom-nav">
+    <button class="nav-item active" id="nav-home" onclick="goTo('home')">
+      <span class="nav-icon">🏠</span>
+      <span class="nav-label">Beranda</span>
+    </button>
+    <button class="nav-item" id="nav-he" onclick="goTo('he')">
+      <span class="nav-icon">🏗️</span>
+      <span class="nav-label">Alat Berat</span>
+    </button>
+    <button class="nav-item" id="nav-seri" onclick="goTo('seri')">
+      <span class="nav-icon">🧪</span>
+      <span class="nav-label">Seri Tabung</span>
+    </button>
+    <button class="nav-item" id="nav-absensi" onclick="goTo('absensi')">
+      <span class="nav-icon">📊</span>
+      <span class="nav-label">Absensi</span>
+    </button>
+  </nav>
+</div><!-- /app -->
+
+
+<script>
+// ═══════════════════════
+// NAVIGATION
+// ═══════════════════════
+const ABSENSI_URL = 'https://isyaanshari24.github.io/PT.SHM/';
+let absensiLoaded = false;
+let currentTab = 'home';
+
+function goTo(tab) {
+  if (tab === currentTab) return;
+  if (tab !== 'home') {
+    history.pushState({ tab }, '', '#' + tab);
+  } else {
+    history.replaceState({ tab: 'home' }, '', location.pathname);
+  }
+  _renderTab(tab);
+}
+
+function _renderTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + tab).classList.add('active');
+  document.getElementById('nav-' + tab).classList.add('active');
+  // absensi opens in browser
+}
+
+// Tombol back -> kembali ke beranda, bukan keluar app
+window.addEventListener('popstate', (e) => {
+  const tab = e.state?.tab || 'home';
+  _renderTab(tab);
+});
+
+// ═══════════════════════════════════════
+// SPLASH
+// ═══════════════════════════════════════
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    document.getElementById('splash').classList.add('hide');
+    document.getElementById('app').classList.add('visible');
+    setTimeout(() => { document.getElementById('splash').style.display = 'none'; }, 500);
+  }, 1800);
+});
+
+// ═══════════════════════════════════════
+// REQUEST ALAT BERAT
+// ═══════════════════════════════════════
+let heWaktu = '';
+let heBloks = [];
+
+function heToggleTag(el, group) {
+  el.classList.toggle('selected');
+}
+function heToggleWaktu(el, w) {
+  document.querySelectorAll('.waktu-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  heWaktu = w;
+}
+function heAddTag(group) {
+  const inp = document.getElementById('he-' + group + '-input');
+  const val = inp.value.trim();
+  if (!val) return;
+  const container = document.getElementById('he-' + group + '-tags');
+  const tag = document.createElement('span');
+  tag.className = 'tag selected';
+  tag.textContent = val;
+  tag.onclick = () => tag.classList.toggle('selected');
+  container.appendChild(tag);
+  inp.value = '';
+}
+function heAddBlok() {
+  const id = Date.now();
+  const div = document.createElement('div');
+  div.className = 'blok-card';
+  div.id = 'blok-' + id;
+  div.innerHTML = `
+    <button class="blok-del" onclick="document.getElementById('blok-${id}').remove()">✕</button>
+    <div class="form-group">
+      <label class="field-label">Project</label>
+      <input type="text" placeholder="Nama project" class="blok-project"/>
+    </div>
+    <div class="form-group" style="margin-bottom:0">
+      <label class="field-label">Alat</label>
+      <input type="text" placeholder="Nama alat" class="blok-alat"/>
+    </div>`;
+  document.getElementById('he-blok-container').appendChild(div);
+}
+function heGetSelected(group) {
+  return [...document.querySelectorAll('#he-' + group + '-tags .tag.selected')].map(t => t.textContent.trim());
+}
+function heGenerate() {
+  const tgl     = document.getElementById('he-tgl').value;
+  const subkon  = document.getElementById('he-subkon').value.trim();
+  const projects = heGetSelected('project');
+  const alats   = heGetSelected('alat');
+  const jam     = document.getElementById('he-jam').value.trim();
+  const rekomend= document.getElementById('he-rekomendasi').value.trim();
+
+  let tglStr = tgl ? new Date(tgl).toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'}).toUpperCase() : '–';
+  let waktuStr = heWaktu ? heWaktu : '–';
+  if (jam) waktuStr += ' (' + jam + ')';
+
+  let out = `*REQUEST ALAT BERAT*\n`;
+  out += `PT. SUMBER HAYATI MANDIRI\n\n`;
+  out += `📅 Tanggal   : ${tglStr}\n`;
+  out += `🏢 Subkon    : ${subkon || '–'}\n`;
+  out += `📌 Project   : ${projects.length ? projects.join(', ') : '–'}\n`;
+  out += `⏰ Waktu     : ${waktuStr}\n`;
+  out += `🚜 Alat Berat: ${alats.length ? alats.join(', ') : '–'}\n`;
+  if (rekomend) out += `🔖 Rekomendasi: ${rekomend}\n`;
+
+  const bloks = document.querySelectorAll('.blok-card');
+  if (bloks.length > 0) {
+    out += `\n📝 *Pekerjaan:*\n`;
+    bloks.forEach((b, i) => {
+      const p = b.querySelector('.blok-project')?.value.trim() || '–';
+      const a = b.querySelector('.blok-alat')?.value.trim() || '–';
+      out += `${i+1}. ${p} — ${a}\n`;
+    });
+  }
+
+  document.getElementById('he-output').textContent = out;
+  const res = document.getElementById('he-result');
+  res.style.display = 'block';
+  res.scrollIntoView({ behavior:'smooth', block:'nearest' });
+}
+function heCopy() {
+  const t = document.getElementById('he-output').textContent;
+  navigator.clipboard.writeText(t).then(() => {
+    const b = document.querySelector('#he-result .btn-green');
+    b.textContent = '✅ Tersalin!';
+    setTimeout(() => b.textContent = '📋 Salin', 2000);
+  });
+}
+function heSendWA() {
+  const t = encodeURIComponent(document.getElementById('he-output').textContent);
+  window.open('https://wa.me/?text=' + t, '_blank');
+}
+function heReset() {
+  if (!confirm('Reset semua data?')) return;
+  document.getElementById('he-tgl').value = '';
+  document.getElementById('he-subkon').value = '';
+  document.getElementById('he-jam').value = '';
+  document.getElementById('he-rekomendasi').value = '';
+  document.querySelectorAll('#he-project-tags .tag, #he-alat-tags .tag').forEach(t => t.classList.remove('selected'));
+  document.querySelectorAll('.waktu-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('he-blok-container').innerHTML = '';
+  document.getElementById('he-result').style.display = 'none';
+  heWaktu = '';
+}
+
+// ═══════════════════════════════════════
+// SERI TABUNG
+// ═══════════════════════════════════════
+let sJenis = 'Oxygen';
+let sOxyList = [], sLpgList = [];
+
+function sSetJenis(j) {
+  sJenis = j;
+  document.getElementById('s-btn-oxy').classList.toggle('active', j === 'Oxygen');
+  document.getElementById('s-btn-lpg').classList.toggle('active', j === 'LPG');
+  document.getElementById('s-prefix-wrap').style.display = j === 'Oxygen' ? 'block' : 'none';
+  document.getElementById('s-seri').focus();
+  sRender();
+}
+function sPrefixChange() {
+  const sel = document.getElementById('s-prefix');
+  const ci  = document.getElementById('s-custom-prefix');
+  if (sel.value === 'custom') {
+    ci.style.display = 'block'; ci.focus();
+  } else {
+    ci.style.display = 'none'; ci.value = '';
+    document.getElementById('s-seri').focus();
+  }
+}
+function sGetPrefix() {
+  const sel = document.getElementById('s-prefix');
+  if (sel.value === 'custom') return document.getElementById('s-custom-prefix').value.trim();
+  return sel.value;
+}
+function sAddSeri() {
+  const inp = document.getElementById('s-seri');
+  const val = inp.value.trim(); if (!val) return;
+  if (sJenis === 'Oxygen') {
+    const pfx = sGetPrefix();
+    if (!pfx) { document.getElementById('s-custom-prefix').focus(); return; }
+    sOxyList.push(pfx + val);
+  } else {
+    sLpgList.push(val);
+  }
+  inp.value = ''; inp.focus(); sRender();
+}
+function sDelSeri(j, i) {
+  if (j === 'Oxygen') sOxyList.splice(i, 1);
+  else sLpgList.splice(i, 1);
+  sRender();
+}
+function sRender() {
+  const list = sJenis === 'Oxygen' ? sOxyList : sLpgList;
+  const box = document.getElementById('s-preview');
+  const cnt = document.getElementById('s-count');
+  if (!list.length) {
+    box.innerHTML = '<span class="empty-hint">Belum ada seri ditambahkan</span>';
+    cnt.textContent = ''; return;
+  }
+  box.innerHTML = list.map((item, i) =>
+    `<div class="seri-item"><span>${i+1}. ${item}</span><button class="seri-del" onclick="sDelSeri('${sJenis}',${i})">✕</button></div>`
+  ).join('');
+  cnt.textContent = `${list.length} seri ${sJenis}`;
+}
+function sGenerate() {
+  const sub = document.getElementById('s-subcon').value;
+  const prj = document.getElementById('s-project').value;
+  const req = document.getElementById('s-req').value;
+  const pkp = document.getElementById('s-pickup').value;
+  let out = `SUBCONTRACTOR: *${sub}*\nPROJECT: *${prj}*\nREQUEST: ${req}\nPENGAMBILAN: ${pkp}\n\n`;
+  out += `*_No seri Oxygen_*\n`;
+  out += sOxyList.length ? sOxyList.map((s,i) => `${i+1}. ${s}`).join('\n') + '\n' : '-\n';
+  out += `\n*_No seri LPG_*\n`;
+  out += sLpgList.length ? sLpgList.map((s,i) => `${i+1}. ${s}`).join('\n') : '-';
+  document.getElementById('s-output').textContent = out;
+  const res = document.getElementById('s-result');
+  res.style.display = 'block';
+  res.scrollIntoView({ behavior:'smooth', block:'nearest' });
+}
+function sCopy() {
+  navigator.clipboard.writeText(document.getElementById('s-output').textContent).then(() => {
+    const b = document.querySelector('#s-result .btn-green');
+    b.textContent = '✅ Tersalin!';
+    setTimeout(() => b.textContent = '📋 Copy Output', 2000);
+  });
+}
+function sClearAll() {
+  if (!confirm('Bersihkan semua data seri?')) return;
+  sOxyList = []; sLpgList = [];
+  document.getElementById('s-seri').value = '';
+  document.getElementById('s-result').style.display = 'none';
+  sRender();
+}
+
+// Init
+sRender();
+
+// ═══════════════════════════════════════
+// SERVICE WORKER REGISTRATION
+// ═══════════════════════════════════════
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/service-worker.js', { scope: '/' })
+      .then(reg => console.log('[SW] Registered:', reg.scope))
+      .catch(err => console.warn('[SW] Failed:', err));
+  });
+}
+
+// Handle shortcut URL ?tab=
+(function() {
+  const p = new URLSearchParams(window.location.search);
+  const tab = p.get('tab');
+  if (tab && ['home','he','seri','absensi'].includes(tab)) {
+    // tunggu splash selesai baru pindah tab
+    setTimeout(() => goTo(tab), 2000);
+  }
+})();
+</script>
+</body>
+</html>
