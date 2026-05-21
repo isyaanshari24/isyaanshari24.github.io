@@ -1,0 +1,8 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "io.github.isyaanshari24.twa",
+    "sha256_cert_fingerprints": ["77:B2:C2:72:E6:F3:A9:F2:94:0F:1D:E3:8B:CE:17:EE:1E:48:33:67:E5:16:F6:CD:87:1F:F7:48:2C:52:74:26"]
+  }
+}]
