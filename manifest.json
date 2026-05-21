@@ -1,0 +1,47 @@
+{
+  "name": "PT. Sumber Hayati Mandiri",
+  "short_name": "PT. SHM",
+  "description": "Aplikasi internal PT. SHM — Request Alat Berat, Seri Tabung & Absensi Manpower",
+  "start_url": "/",
+  "scope": "/",
+  "display": "fullscreen",
+  "orientation": "portrait",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
+  "lang": "id",
+  "categories": ["business", "productivity"],
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Request Alat Berat",
+      "short_name": "Alat Berat",
+      "url": "/#he",
+      "description": "Buka form request alat berat"
+    },
+    {
+      "name": "Seri Tabung",
+      "short_name": "Seri Tabung",
+      "url": "/#seri",
+      "description": "Input seri tabung Oxygen & LPG"
+    }
+  ]
+}
